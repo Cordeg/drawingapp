@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}3MinDrawing{% endblock %}
+
+{% block extra_class %}
+<style type="text/css">
+    .container > .grid {
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <form action="{% url 'app:display' %}" method="post" style="text-align:center;">
+            {% csrf_token %}
+            <input type="submit" name="button_1" value="NEXT"> 
+            <input type="submit" name="button_2" value="STOP"> 
+        </form>
+        <p style="text-align:center;" class="resizeimage">
+            <img src="{% static image_path %}" id="image1" onclick="func1()">
+        </p>
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+    const image1 = document.getElementById("image1");
+    let stat = false;
+
+    function func1() {
+        if(image1 && image1.style) {
+            if(stat) {
+                image1.style.maxWidth = '100%';
+                image1.style.maxHeight = '';
+            } else {
+                image1.style.maxWidth = '';
+                image1.style.maxHeight = '90vh';
+            }
+        }
+        stat = !stat;
+
+    }
+</script>
+
+{% endblock %}

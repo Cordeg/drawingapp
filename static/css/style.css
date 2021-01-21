@@ -1,0 +1,4 @@
+
+/*.resizeimage img { width: 100%; }*/
+
+.resizeimage img { max-width: 100%; }
