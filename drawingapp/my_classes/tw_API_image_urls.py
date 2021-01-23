@@ -135,8 +135,6 @@ class ImageURLs:
         """
         end_timeからstart_timeまでのツイートを取得し、image_urlsを抽出する。先頭と末尾のツイートからend_timeとstart_timeを計算する。
         return: urls, end_time, start_time
-        
-        ・start_timeを超えたらやめて、そのときの末尾のcreated_atをstart_timeにセットする。
         """
         # ツイートの重複をなくすため、１秒だけずらす。
         fixed_end_time = self.str_from_datetime(self.datetime_from_str(end_time) - timedelta(seconds=1))
@@ -198,10 +196,26 @@ class ImageURLs:
         tweets = self.query_tweets_by_user_id(user_id, params)
         
         # image urls を抽出
-        if 'includes' in tweets and 'media' in tweets['includes']:
-            image_urls = [x['url'] for x in tweets['includes']['media'] if x['type']=='photo']
-        else:
-            image_urls = []
+        image_urls = []
+        """
+        image_urls の要素は [created_at ('2020-12-23T19:12:22.000Z'のような文字列）, url] としたいが、
+        created_at は tweets['data'] に、url は tweets['includes']['media'] にあるので以下のようにする。
+        """
+        if 'data' in tweets and 'includes' in tweets:            
+            tweets_data = tweets['data']
+            tweets_media = tweets['includes']['media']
+            
+            # media のうち、type が photo のものからなる、media_key から url への辞書。
+            key_url_dict = {x['media_key']: x['url'] for x in tweets['includes']['media'] if x['type']=='photo'}
+            
+            for tw in tweets_data:
+                # attachments を持つとき、media_keys を持つ。上で定義したkey_url_dictから検索し、created_at と url の組を作る。
+                if 'attachments' in tw:
+                    media_keys = tw['attachments']['media_keys']
+                    created_at = tw['created_at']
+                    for key in media_keys:
+                        image_urls.append([key_url_dict[key], created_at])
+
                     
         # この tweets の先頭と末尾のツイートから日時を取得
         if 'data' in tweets:
@@ -300,39 +314,20 @@ class ImageURLs:
         
         return datetime.strptime(s, date_format)
             
-    
 
-username0 = "3142725"
-username1 = "sakauchi0"
-username2 = "wttn3tpkt"
-usernames = [username0, username1, username2]
+if __name__=='__main__':
 
-cl = ImageURLs()
-user_info = cl.get_users_info(usernames)
-print(user_info)
+    usernames = [
+        "sakauchi0",
+        "wttn3tpkt",
+        ]
 
+    cl = ImageURLs()
+    user_info = cl.get_users_info(usernames)
+    print(user_info)
 
-params_full = {
-    'expansions' :'attachments.media_keys',
-    'media.fields' : 'url,type',
-    'tweet.fields' : 'created_at',
-    'exclude' : 'retweets,replies',
-    'max_results' : 50,
-    'end_time' : '',
-    'start_time' : '',
-     }
+    for user_id in user_info:
+        username = user_info[user_id]
 
-params = {
-    'expansions' :'attachments.media_keys',
-    'media.fields' : 'url,type',
-    'tweet.fields' : 'created_at',
-    'exclude' : 'retweets,replies',
-    'max_results' : 50,
-     }
-
-
-user_id = list(user_info.keys())[0]
-username = user_info[user_id]
-
-cl.export_image_urls(username, user_id, days=100)
-cl.export_image_urls(username, user_id, days=300)
+        # username の image_urls を取得しエクスポート
+        cl.export_image_urls(username, user_id, days=300)
