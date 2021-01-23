@@ -3,3 +3,5 @@
 
 /static/images/*
 !/static/images/test_images/
+
+/drawingapp/my_classes/config.py

@@ -1,4 +1,10 @@
 
-/*.resizeimage img { width: 100%; }*/
-
 .resizeimage img { max-width: 100%; }
+
+.defaultimage { 
+    max-height: 90vh;
+} 
+
+.enlarged {
+    max-width: 100vw;
+}
