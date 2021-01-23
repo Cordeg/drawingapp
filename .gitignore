@@ -1,6 +1,3 @@
-!/static/
-!/static/images/
-
 /static/images/*
 !/static/images/test_images/
 
