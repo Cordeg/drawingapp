@@ -141,16 +141,9 @@ class ImageURLs:
         fixed_start_time = self.str_from_datetime(self.datetime_from_str(start_time) + timedelta(seconds=1))
         # urls
         urls = []
-
-        params = {
-            'expansions' :'attachments.media_keys',
-            'media.fields' : 'url,type',
-            'tweet.fields' : 'created_at',
-            'exclude' : 'retweets,replies',
-            'end_time' : fixed_end_time,
-            'start_time' : fixed_start_time,
-            'max_results' : 100,
-        }
+        
+        # params を設定
+        params = self.__get_params(end_time=fixed_end_time, start_time=fixed_start_time, next_token=None)
         
         # image_urls 等を取得。
         image_urls, tmp_end_time, tmp_start_time, next_token = self.__get_tweets_info(user_id, params)
@@ -163,15 +156,8 @@ class ImageURLs:
         while(True):
             
             if next_token:
-                params = {
-                    'expansions' :'attachments.media_keys',
-                    'media.fields' : 'url,type',
-                    'tweet.fields' : 'created_at',
-                    'exclude' : 'retweets,replies',
-                    'start_time' : fixed_start_time,
-                    'max_results' : 100,
-                    'pagination_token' : next_token,
-                }
+                # params を設定
+                params = self.__get_params(end_time=None, start_time=fixed_start_time, next_token=next_token)
                 
                 # image_urls 等を取得。
                 image_urls, tmp_end_time, tmp_start_time, next_token = self.__get_tweets_info(user_id, params)
@@ -190,6 +176,26 @@ class ImageURLs:
         
         return urls, max_end_time, min_start_time
         
+
+    @staticmethod
+    def __get_params(end_time, start_time, next_token):
+        params = {
+            'expansions' :'attachments.media_keys',
+            'media.fields' : 'url,type',
+            'tweet.fields' : 'created_at',
+            'exclude' : 'retweets,replies',
+            'max_results' : 100,
+        }
+
+        if end_time:
+            params['end_time'] = end_time
+        if start_time:
+            params['start_time'] = start_time
+        if next_token:
+            params['pagination_token'] = next_token
+        
+        return params
+
             
     def __get_tweets_info(self, user_id, params):
         
@@ -213,8 +219,11 @@ class ImageURLs:
                 if 'attachments' in tw:
                     media_keys = tw['attachments']['media_keys']
                     created_at = tw['created_at']
+
                     for key in media_keys:
-                        image_urls.append([key_url_dict[key], created_at])
+                        if key in key_url_dict:
+                            # type が photo 以外のものはここで弾く
+                            image_urls.append([key_url_dict[key], created_at])
 
                     
         # この tweets の先頭と末尾のツイートから日時を取得
@@ -315,12 +324,39 @@ class ImageURLs:
         return datetime.strptime(s, date_format)
             
 
+def load_usernames(filename):
+        # root=server/drawingapp
+        root, folder = os.path.split(os.path.dirname(os.path.abspath(__file__)))
+        # root=server
+        root, folder = os.path.split(root)
+        # server/static/images のディレクトリに設定
+        image_dir = os.path.join(root, "static", "images")
+
+        file_path = os.path.join(image_dir, filename)
+
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+            lines = list(map(lambda x: x.strip(), lines))
+        
+        usernames = []
+        for s in lines:
+            if s and s[0]!='#':
+                # #で始まる行はコメント
+                if s[0]=='@':
+                    usernames.append(s[1:])
+                else:
+                    usernames.append(s)
+        
+        return usernames
+
+
 if __name__=='__main__':
 
     usernames = [
-        "sakauchi0",
-        "wttn3tpkt",
+        "zumi_tiri",
         ]
+
+    usernames = load_usernames("usernames.txt")
 
     cl = ImageURLs()
     user_info = cl.get_users_info(usernames)
@@ -328,6 +364,9 @@ if __name__=='__main__':
 
     for user_id in user_info:
         username = user_info[user_id]
+        print(username)
 
         # username の image_urls を取得しエクスポート
-        cl.export_image_urls(username, user_id, days=300)
+        cl.export_image_urls(username, user_id, days=366*4)
+
+    
