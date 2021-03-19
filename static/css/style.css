@@ -1,3 +1,22 @@
+h1 {
+    color: red;
+}
+.site-header {
+    background: #fff;
+    display: flex;
+    position: fixed;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.header__menu {
+    display: flex;
+}
+.header__menu__item {
+    margin-left: 20px;
+    text-decoration: none;
+}
+
 
 .resizeimage img { max-width: 100%; }
 

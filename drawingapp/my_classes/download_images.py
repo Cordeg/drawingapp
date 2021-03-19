@@ -161,8 +161,7 @@ if __name__=='__main__':
     downloader = ImageDownloader()
 
     usernames = [
-        "atwomaru",
-        "ab_t",
+        "",
         ]
 
     usernames = load_usernames("usernames.txt")

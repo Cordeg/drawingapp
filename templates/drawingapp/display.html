@@ -3,7 +3,8 @@
 
 {% block page_title %}3MinDrawing{% endblock %}
 
-{% block extra_class %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 <style type="text/css">
     .container > .grid {
         height: 100%;
@@ -19,7 +20,7 @@
             <input type="submit" name="button_1" value="NEXT"> 
             <input type="submit" name="button_2" value="STOP"> 
         </form>
-        <p style="text-align:center;" class="resizeimage">
+        <p style="text-align:center;" {# class="resizeimage" #}>
             <img src="{% static image_path %}" id="image1" class="defaultimage">
         </p>
     </div>
@@ -29,8 +30,8 @@
     const image1 = document.getElementById("image1");
 
     image1.onclick = function toggleStyle() {
-        this.classList.toggle('defaultimage');
-        this.classList.toggle('enlarged');
+        this.classList.toggle("defaultimage");
+        this.classList.toggle("enalrged");
     }
 
 </script>

@@ -10,7 +10,6 @@ from pprint import pprint
 class ImageURLs:
     """
     Twitter APIを叩いて投稿画像のURLを取得する。
-    関数型っぽくなるよう心掛ける。
     """
     
     def __init__(self):
@@ -68,7 +67,6 @@ class ImageURLs:
         ・end_time, start_timeの変数を保持する。適時更新する。
         ・file_path_date, file_path_urlsを作る。
         ・file_path_urlsに画像のURLを追加する。
-        　予顕：このURLから画像を取得するのは別のクラスが行う。取得したURLはこのファイルから削除する。
         ・paramsを作るときに、timedelta(seconds=1)する。
         """
         
@@ -353,7 +351,7 @@ def load_usernames(filename):
 if __name__=='__main__':
 
     usernames = [
-        "zumi_tiri",
+        "",
         ]
 
     usernames = load_usernames("usernames.txt")
@@ -368,5 +366,4 @@ if __name__=='__main__':
 
         # username の image_urls を取得しエクスポート
         cl.export_image_urls(username, user_id, days=366*4)
-
     
